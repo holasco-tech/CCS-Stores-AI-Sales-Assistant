@@ -1,88 +1,80 @@
 # CCS Stores AI Sales Assistant
 
-An AI-powered sales assistant built with **n8n**, **Gmail**, **Google Gemini**, and **Google Sheets** to automate customer enquiries for CCS Stores.
-
 ## Overview
 
-This project automates sales communication for a palm kernel processing company.
-
-When a customer sends an email asking about products, pricing, delivery, or availability, the AI automatically:
-
-- Reads the incoming email
-- Understands the customer's request using Google Gemini
-- Generates a professional reply
-- Sends the response through Gmail
-- Saves the interaction in Google Sheets
-
-This reduces response time and helps businesses provide faster customer support.
-
----
+An AI-powered sales assistant built with n8n, Google Gemini, Gmail, and Google Sheets to automate customer inquiries and order processing for CCS Stores.
 
 ## Features
 
-- AI-generated email replies
-- Gmail automation
-- Google Gemini AI integration
-- Google Sheets logging
-- Fully automated workflow using n8n
-- No manual intervention required
+- Automatically reads new customer emails from Gmail
+- Extracts customer details using Google Gemini AI
+- Identifies customer name
+- Identifies company name
+- Detects product ordered (PKO or PKC)
+- Detects quantity ordered
+- Detects delivery location
+- Saves every order automatically to Google Sheets
+- Replies to customers automatically via Gmail
+- Generates professional HTML email responses
+- Uses AI memory for improved conversations
 
----
-
-## Technologies Used
+## Tech Stack
 
 - n8n
-- Google Gemini API
-- Gmail
-- Google Sheets
-
----
+- Google Gemini
+- Gmail API
+- Google Sheets API
+- HTML
+- AI Automation
 
 ## Workflow
 
 Customer Email
-
 ↓
 
 Gmail Trigger
-
 ↓
 
-AI Agent (Google Gemini)
-
+Google Gemini AI Agent
 ↓
 
-Generate Reply
-
+Extract Order Details
 ↓
 
-Send Email
-
+Save Order to Google Sheets
 ↓
 
-Save Conversation in Google Sheets
+Generate Professional HTML Reply
+↓
 
----
+Automatically Reply to Customer
 
-## Business Benefits
+## Example
 
-- Faster customer response
-- Saves staff time
-- 24/7 automated replies
-- Improved customer experience
-- Automatic sales record keeping
+Customer:
 
----
+> Hello, my name is Peter James from Dangote Industries. I need 4 tons of PKO delivered to Lagos.
 
-## Future Improvements
+AI automatically:
 
-- WhatsApp integration
-- Voice AI support
-- CRM integration
-- Inventory checking
-- Customer memory
-- RAG knowledge base
+- Extracts customer information
+- Records the order
+- Saves it to Google Sheets
+- Sends a professional confirmation email
 
----
+## Skills Demonstrated
 
-Created by **Holasco**
+- AI Automation
+- Workflow Automation
+- Prompt Engineering
+- Gmail Integration
+- Google Sheets Integration
+- AI Agents
+- Business Process Automation
+- n8n Development
+
+## Author
+
+**Holasco**
+
+Building AI Automation solutions for businesses.
