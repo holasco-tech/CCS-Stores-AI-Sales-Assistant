@@ -1,0 +1,522 @@
+{
+  "name": "CCS Stores AI Sales Asistant",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are the AI Sales Assistant for CCS Stores.\n\nABOUT CCS STORES\n\nCCS Stores supplies Palm Kernel Oil (PKO) and Palm Kernel Cake (PKC) across Nigeria.\n\nCurrent Prices\n\nPKO:\n₦1,720,000 per ton\n\nPKC:\n₦220,000 per ton\n₦11,000 per 50kg bag\n\n================================================\n\nYOUR JOB\n\nYou help customers:\n\n1. Create new orders.\n2. Update existing orders.\n3. Generate quotations.\n\n================================================\n\nORDER MANAGEMENT\n\nBefore creating or updating any order:\n\n1. Always search Google Sheets for an existing customer.\n\n2. If an order already exists:\n- Update the existing row.\n- Never create another row.\n\n3. If the customer does not exist:\n- Create a new row.\n\n4. If the customer changes only quantity, update only quantity.\n\n5. If the customer changes only location, update only location.\n\n6. If the customer changes only product, update only product.\n\n7. Never change information the customer did not request.\n\n================================================\n\nQUOTATION RULES\n\nIf the customer asks for a quotation:\n\nDO NOT create a Google Sheets row.\n\nDO NOT update any existing row.\n\nOnly prepare a quotation.\n\nIf any of these are missing:\n\n- Customer name\n- Company\n- Product\n- Quantity\n- Delivery location\n\nAsk the customer politely for the missing information.\n\nNever invent missing information.\n\n================================================\n\nWhen all information is available, calculate the quotation.\n\nUse these prices.\n\nPKO\n₦1,720,000 per ton\n\nPKC\n₦220,000 per ton\n\n================================================\n\nIMPORTANT FORMAT RULES\n\nReturn PLAIN TEXT ONLY.\n\nNever use Markdown.\n\nNever use **\n\nNever use #\n\nNever use bullet points.\n\nNever put two fields on one line.\n\nLeave one empty line between every field.\n\nYour response MUST look exactly like this.\n\nCCS STORES QUOTATION\n\nCustomer Name:\nDavid Adeyemi\n\nCompany:\nRoyal Soap Industries\n\nProduct:\nPalm Kernel Oil (PKO)\n\nQuantity:\n5 tons\n\nUnit Price:\n₦1,720,000 per ton\n\nTotal Amount:\n₦8,600,000\n\nDelivery Location:\nKano\n\nQuotation Validity:\n7 Days\n\nDelivery charges will be calculated after the final delivery address is confirmed.\n\nThank you for choosing CCS Stores.\n\nNever return everything as one paragraph.\n\nAlways insert blank lines exactly as shown above.\n\nThis format must be followed for every quotation reply."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -32
+      ],
+      "id": "ce88d79f-75da-4f48-853b-76109c510730",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        160
+      ],
+      "id": "fbd05cbc-f4bf-4209-8fb9-f5cbec76ee81",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Roko3A5VNNNqJnPZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool only when the customer is placing a brand-new order and no matching existing order was found.\n\nBefore using this tool, first use the Get Row(s) tool to search for an existing order.\n\nDo not use this tool for:\n- order updates\n- quantity changes\n- location changes\n- customer name corrections\n- company corrections\n\nIf an existing order is found, use the Update Row tool instead.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI",
+          "mode": "list",
+          "cachedResultName": "ccs customer leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Company', `Extract the company name.`, 'string') }}",
+            "Customer Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Name', `Extract the customer's full name.`, 'string') }}",
+            "Product": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product', `Extract the product being ordered (PKO or PKC).`, 'string') }}",
+            "Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity', `Extract the quantity requested.`, 'string') }}",
+            "Location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', `Extract the delivery location.`, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        192
+      ],
+      "id": "bf8d2ad7-548d-4583-a30a-e12d126c2b83",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "O2Siz9Bt9jVVrW3P",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $('AI Agent').item.json.output.replace(/\\n/g, '<br>') }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        32
+      ],
+      "id": "50f8f48b-3e8a-42fd-a33d-76659aa37072",
+      "name": "Reply to a message",
+      "webhookId": "4ac97765-fe24-4650-808c-f4f2a0494511",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nXETHkEU1jplrxPd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -352,
+        -48
+      ],
+      "id": "545716b5-1928-4999-9fa3-0772823066e7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nXETHkEU1jplrxPd",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.threadId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "8bc4594d-5138-4731-831b-4bc595a643a5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Always use this tool before deciding whether to create or update an order.\n\nSearch for an existing order using the company name.\n\nIf a matching row is found:\n- use the Update Row tool\n- do not use Append Row\n\nIf no matching row is found:\n- use the Append Row tool\n\nReturn only the first matching row.",
+        "documentId": {
+          "__rl": true,
+          "value": "1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI",
+          "mode": "list",
+          "cachedResultName": "ccs customer leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Customer Name",
+              "lookupValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('values0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        176
+      ],
+      "id": "a76ecaeb-b89d-48c7-abcc-c4b54c71c22f",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "O2Siz9Bt9jVVrW3P",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": " Use this tool only when the customer is changing an existing order.\n\nFirst search for the customer's existing order using the Get Row(s) tool.\n\nIf a matching order exists, update that row instead of creating a new one.\n\nYou can update:\n- Quantity\n- Customer Name\n- Company\n- Product\n- Delivery Location\n\nNever create a new row with this tool.",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI",
+          "mode": "list",
+          "cachedResultName": "ccs customer leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RanuYISe5qeOm4oR7KTemyLktD9G0K30rZ3MMHqojPI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Customer Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Name__using_to_match_', ``, 'string') }}",
+            "Company": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Company', ``, 'string') }}",
+            "Product": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product', ``, 'string') }}",
+            "Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity', ``, 'string') }}",
+            "Location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Company"
+          ],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        208
+      ],
+      "id": "2989e684-84c5-4c0c-9699-2ddbf8dc0b6a",
+      "name": "Update row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "O2Siz9Bt9jVVrW3P",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\n  <style>\n    body {\n      margin: 0;\n      padding: 30px;\n      background: #f4f6f8;\n      font-family: Arial, Helvetica, sans-serif;\n      color: #222222;\n    }\n\n    .quotation {\n      max-width: 750px;\n      margin: 0 auto;\n      background: #ffffff;\n      border: 1px solid #dddddd;\n      border-radius: 10px;\n      overflow: hidden;\n    }\n\n    .header {\n      background: #17365d;\n      color: #ffffff;\n      padding: 28px 35px;\n    }\n\n    .company-name {\n      margin: 0;\n      font-size: 30px;\n      font-weight: 700;\n      letter-spacing: 1px;\n    }\n\n    .document-title {\n      margin: 8px 0 0;\n      font-size: 17px;\n      font-weight: 400;\n    }\n\n    .reference {\n      background: #eef3f8;\n      padding: 16px 35px;\n      border-bottom: 1px solid #dddddd;\n      font-size: 14px;\n      line-height: 1.7;\n    }\n\n    .content {\n      padding: 32px 35px;\n      font-size: 16px;\n      line-height: 1.8;\n    }\n\n    .quotation-output {\n      padding: 22px;\n      background: #f8fafc;\n      border-left: 5px solid #17365d;\n      border-radius: 5px;\n    }\n\n    .footer {\n      padding: 20px 35px;\n      background: #17365d;\n      color: #ffffff;\n      font-size: 13px;\n      line-height: 1.6;\n      text-align: center;\n    }\n\n    .note {\n      margin-top: 25px;\n      padding-top: 18px;\n      border-top: 1px solid #dddddd;\n      color: #555555;\n      font-size: 14px;\n    }\n  </style>\n</head>\n\n<body>\n  <div class=\"quotation\">\n\n    <div class=\"header\">\n      <h1 class=\"company-name\">CCS STORES</h1>\n      <p class=\"document-title\">OFFICIAL SALES QUOTATION</p>\n    </div>\n\n    <div class=\"reference\">\n      <strong>Quotation Number:</strong>\n      CCS-{{ $now.toFormat('yyyyLLdd-HHmmss') }}\n      <br>\n\n      <strong>Date:</strong>\n      {{ $now.toFormat('dd LLLL yyyy') }}\n      <br>\n\n      <strong>Validity:</strong>\n      7 Days\n    </div>\n\n    <div class=\"content\">\n      <div class=\"quotation-output\">\n        {{ $json.output.replace(/\\n/g, '<br>') }}\n      </div>\n\n      <div class=\"note\">\n        Delivery charges will be confirmed after the final delivery address\n        and transportation requirements have been reviewed.\n      </div>\n    </div>\n\n    <div class=\"footer\">\n      Thank you for choosing CCS Stores.<br>\n      Palm Kernel Oil and Palm Kernel Cake Supplier\n    </div>\n\n  </div>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        -16
+      ],
+      "id": "c2eec30b-818a-4f11-856c-0d9e6ef4fdba",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "operation": "html",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        -32
+      ],
+      "id": "ef9a950d-6aaf-4107-b045-7434e3f2ca88",
+      "name": "Convert to File"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b95db656-7ce5-4833-a4cb-2edb07d2b9f6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c5185e04efbad5201dc88e5c454c4e5ba4eeb8118bd71cc85f76fd2bab3fbfb"
+  },
+  "nodeGroups": [],
+  "id": "nE2bx4SiqnIQXYc9",
+  "tags": []
+}
