@@ -1,0 +1,211 @@
+{
+  "name": "CCS Stores AI Sales Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.snippet }}",
+        "options": {
+          "systemMessage": "You are the AI Sales Assistant for CCS Stores.\n\nAbout CCS Stores\n\nCCS Stores supplies Palm Kernel Oil (PKO) and Palm Kernel Cake (PKC) to businesses across Nigeria.\n\nProducts and Prices\n\nPalm Kernel Oil (PKO)\n- Current price: ₦1,720,000 per ton.\n- Sold only in tons.\n- Delivery is available across Nigeria.\n\nPalm Kernel Cake (PKC)\n- Current price: ₦11,000 per 50kg bag.\n- Current price: ₦220,000 per ton (20 bags).\n- Customers can buy either individual bags or full tons.\n\nRules\n\n1. Answer every customer politely and professionally.\n\n2. If a customer asks for the price of PKO or PKC, provide the correct current price.\n\n3. If a customer asks for delivery, explain that delivery is available anywhere in Nigeria and the delivery cost depends on the destination.\n\n4. If a customer wants to place an order, confirm the order professionally.\n\n5. Only use the connected Google Sheets tool when a customer clearly places an order or confirms they want to buy.\n\n6. Do NOT record an order if the customer is only asking questions about prices, delivery, products, or availability.\n\n7. If any important information is missing (such as quantity, product, or delivery location), politely ask the customer for the missing information before confirming the order.\n\n8. Never invent prices or business information. If you do not know something, politely explain that you need to confirm it.\n\n9. Keep every reply short, professional, and friendly.\n\n10. When a customer places an order, use the Google Sheets tool to save:\n- Customer Name\n- Company Name\n- Product (PKO or PKC)\n- Quantity\n- Delivery Location\n\nThen reply to the customer confirming that the order has been received and that a CCS Stores representative will contact them shortly to finalize payment and delivery.\n\nCustomer identity rules:\n\n- Identify the customer’s name only from the customer’s current message.\n- Never use the Gmail account owner’s name, the sender account display name, or names found inside quoted previous emails.\n- If the current message does not clearly state the customer’s name, do not guess.\n- In that case, begin the reply with “Hello” instead of using a name.\n- Keep the customer name and company from the earlier conversation only when they are clearly present in the current email thread.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -32
+      ],
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        144
+      ],
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "CCS Customer Leads"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Company', `Extract the company name.`, 'string') }}",
+            "Customer Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Name', `Extract the customer's full name.`, 'string') }}",
+            "Product": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product', `Extract the product being ordered (PKO or PKC).`, 'string') }}",
+            "Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Quantity', `Extract the quantity requested.`, 'string') }}",
+            "Location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', `Extract the delivery location.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        144
+      ],
+      "name": "Append row in sheet in Google Sheets"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        -16
+      ],
+      "name": "Reply to a message"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -352,
+        -48
+      ],
+      "name": "Gmail Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
