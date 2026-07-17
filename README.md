@@ -75,6 +75,12 @@ AI automatically:
 
 ## Author
 
-**Holasco**
+**Aureon**
 
 Building AI Automation solutions for businesses.
+
+## 🎥 Demo Video
+
+Watch the AI Sales Assistant in action:
+
+[Aureon AI Demo](./Aureon%20AI%20Demo.mp4)
